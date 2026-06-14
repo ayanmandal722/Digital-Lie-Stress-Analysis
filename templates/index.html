@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multimodal Stress Detector</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="glass-bg"></div>
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header class="main-header">
+            <div class="header-logo">
+                <i class="fa-solid fa-brain-circuit pulse-icon"></i>
+                <h1>Antigravity StressSense</h1>
+            </div>
+            <div class="header-subtitle">
+                <span>Multimodal Stress Detection & Analysis System</span>
+                <span class="badge">Model Version: 2025-v1.0</span>
+            </div>
+        </header>
+
+        <!-- Main Layout -->
+        <div class="dashboard-grid">
+            <!-- Left Panel: Capturing / Recording -->
+            <section class="glass-card capture-panel">
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-video"></i> Recording Studio</h2>
+                    <div class="tabs">
+                        <button class="tab-btn active" onclick="switchTab('live')">Live Stream</button>
+                        <button class="tab-btn" onclick="switchTab('upload')">File Upload</button>
+                    </div>
+                </div>
+
+                <!-- Live Capture Area -->
+                <div id="live-tab" class="tab-content active">
+                    <div class="media-container">
+                        <video id="webcam" autoplay playsinline muted class="video-preview placeholder-bg"></video>
+                        <div id="camera-overlay" class="media-overlay">
+                            <i class="fa-solid fa-camera"></i>
+                            <p>Camera Off</p>
+                        </div>
+                        <div id="scanning-line" class="scanning-line hidden"></div>
+                        <div id="face-box" class="face-box hidden"></div>
+                    </div>
+
+                    <div class="audio-mic-status">
+                        <div class="mic-wave" id="mic-wave">
+                            <span class="bar"></span>
+                            <span class="bar"></span>
+                            <span class="bar"></span>
+                            <span class="bar"></span>
+                            <span class="bar"></span>
+                        </div>
+                        <span id="mic-text"><i class="fa-solid fa-microphone-slash"></i> Microphone idle</span>
+                    </div>
+
+                    <div class="control-row">
+                        <button id="btn-camera" class="btn btn-secondary"><i class="fa-solid fa-camera-rotate"></i> Start Cam</button>
+                        <button id="btn-record-mic" class="btn btn-secondary" disabled><i class="fa-solid fa-microphone"></i> Record Voice</button>
+                        <button id="btn-analyze" class="btn btn-primary" disabled><i class="fa-solid fa-chart-line"></i> Run Analysis</button>
+                    </div>
+                    <div class="status-msg" id="status-message">Initialize camera to begin stress evaluation.</div>
+                </div>
+
+                <!-- File Upload Area -->
+                <div id="upload-tab" class="tab-content">
+                    <div class="upload-area" id="drop-zone">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <p>Drag & drop media files here or click to browse</p>
+                        <span class="small-text">Supports MP4, WEBM (video) & WAV, MP3 (audio)</span>
+                        <input type="file" id="file-input" class="hidden-input" accept="video/*,audio/*" multiple>
+                    </div>
+
+                    <div class="file-list" id="selected-files">
+                        <!-- File cards go here -->
+                    </div>
+
+                    <button id="btn-upload-analyze" class="btn btn-primary w-100" disabled>
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Process Selected Files
+                    </button>
+                </div>
+            </section>
+
+            <!-- Right Panel: Results & Fusion Analysis -->
+            <section class="glass-card results-panel">
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-gauge-high"></i> Stress Diagnostics</h2>
+                    <span class="indicator-status" id="diagnostics-status">Waiting for data...</span>
+                </div>
+
+                <div class="diagnostics-summary">
+                    <!-- Stress Gauge -->
+                    <div class="gauge-container">
+                        <div class="gauge-ring">
+                            <svg viewBox="0 0 100 100">
+                                <circle class="gauge-bg" cx="50" cy="50" r="40" />
+                                <circle class="gauge-fill" id="stress-gauge" cx="50" cy="50" r="40" style="stroke-dashoffset: 251.2;" />
+                            </svg>
+                            <div class="gauge-value">
+                                <span id="stress-percentage">0%</span>
+                                <span id="stress-label">Relaxed</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modality Breakdown -->
+                    <div class="scores-breakdown">
+                        <div class="score-card">
+                            <span class="title"><i class="fa-solid fa-face-smile"></i> Facial Cues</span>
+                            <div class="score-bar-bg">
+                                <div class="score-bar-fill face-fill" id="face-score-bar" style="width: 0%;"></div>
+                            </div>
+                            <div class="score-labels">
+                                <span id="face-emotion-txt">Neutral</span>
+                                <span id="face-score-val">0%</span>
+                            </div>
+                        </div>
+
+                        <div class="score-card">
+                            <span class="title"><i class="fa-solid fa-volume-high"></i> Vocal Cues</span>
+                            <div class="score-bar-bg">
+                                <div class="score-bar-fill voice-fill" id="voice-score-bar" style="width: 0%;"></div>
+                            </div>
+                            <div class="score-labels">
+                                <span>Acoustic Energy</span>
+                                <span id="voice-score-val">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="description-box" id="stress-description">
+                    System stands ready. Record or upload facial video and speech data to compute fused multimodal stress scores.
+                </div>
+            </section>
+        </div>
+
+        <!-- Lower Dashboard Grid (Charts, Paper Specs, Grounding) -->
+        <div class="lower-grid">
+            <!-- Charts Section -->
+            <section class="glass-card chart-card">
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-chart-area"></i> Session Timeline</h2>
+                    <button class="btn btn-small" onclick="resetHistory()"><i class="fa-solid fa-trash-can"></i> Reset</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="timelineChart"></canvas>
+                </div>
+            </section>
+
+            <!-- Interactive Grounding/Breathing Guide -->
+            <section class="glass-card breathing-card">
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-wind"></i> Grounding Space</h2>
+                    <span class="small-badge">De-stress Guide</span>
+                </div>
+                <div class="breathing-content">
+                    <div class="breathing-circle-outer">
+                        <div class="breathing-circle" id="breath-circle"></div>
+                        <div class="breathing-instruction" id="breath-instruction">Click Start to Breathe</div>
+                    </div>
+                    <button id="btn-breathing" class="btn btn-secondary btn-small">Start Breathing Guide</button>
+                </div>
+            </section>
+
+            <!-- Research Paper Details -->
+            <section class="glass-card research-card">
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-graduation-cap"></i> Scientific Reference</h2>
+                </div>
+                <div class="research-body">
+                    <h3>Multimodal Stress Detection Using Facial Expressions and Voice Analysis</h3>
+                    <p class="citation">Prachi Shahane, Devendra Chinchanikar, Bill Jadhav et al. (2025)</p>
+                    
+                    <div class="paper-table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Method/Modality</th>
+                                    <th>Accuracy</th>
+                                    <th>Latency</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Facial Analysis Only (CNN)</td>
+                                    <td>72%</td>
+                                    <td>~45ms</td>
+                                </tr>
+                                <tr>
+                                    <td>Voice Analysis Only (SVM/RF)</td>
+                                    <td>78%</td>
+                                    <td>~120ms</td>
+                                </tr>
+                                <tr class="highlight-row">
+                                    <td>Multimodal Fusion (Proposed)</td>
+                                    <td>86%</td>
+                                    <td>~150ms</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="bullet-list-container">
+                        <h4>Paper Findings:</h4>
+                        <ul>
+                            <li><i class="fa-solid fa-circle-check"></i> Lower False Positive rate by 18% compared to single cue.</li>
+                            <li><i class="fa-solid fa-circle-check"></i> Enhanced robustness in poor lighting and ambient vocal noise.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
