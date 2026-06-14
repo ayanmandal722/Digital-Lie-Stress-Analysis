@@ -301,3 +301,4 @@ class MultimodalFusionDetector:
             'face_emotion': face_result.get('emotion') if has_face else None,
             'voice_score': voice_result['stress_score'] if has_voice else None
         }
+  
