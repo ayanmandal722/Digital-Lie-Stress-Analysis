@@ -58,8 +58,7 @@ As established in the reference paper, the system yields the following performan
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/saheliacharyya-cpu/Digital-Lie-Stress-Analysis.git
-cd Digital-Lie-Stress-Analysis](https://github.com/ayanmandal722/Digital-Lie-Stress-Analysis.git
+git clone https://github.com/ayanmandal722/Digital-Lie-Stress-Analysis.git
 ```
 
 ### 2. Install Dependencies
